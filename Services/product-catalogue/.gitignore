@@ -1,0 +1,22 @@
+# Go binaries
+/bin/
+/pkg/
+
+# Go workspace files
+go.work
+go.work.sum
+
+# Dependency directories (note: Go Modules)
+vendor/
+uploads/
+# .env file for environment variables
+
+
+# IDE or editor files
+.idea/
+.vscode/
+*.swp
+
+# OS generated files
+.DS_Store
+Thumbs.db
