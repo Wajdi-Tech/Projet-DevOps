@@ -1,0 +1,272 @@
+<div class="container mx-auto px-6 py-8">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div>
+      <h2 class="text-3xl font-black text-gray-900 tracking-tight">Products</h2>
+      <p class="text-gray-500 mt-1">Manage your catalog and inventory</p>
+    </div>
+    <div class="flex gap-3">
+      <button (click)="toggleForm()"
+        class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 shadow-lg shadow-blue-500/30 transition-all hover:-translate-y-0.5">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        Add Product
+      </button>
+      <div class="relative">
+        <input type="text" [(ngModel)]="searchTerm" placeholder="Search products..."
+          class="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-64 shadow-sm" />
+        <svg class="w-4 h-4 text-gray-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Product form toggle -->
+  <div *ngIf="showForm"
+    class="mb-8 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden animate-fade-in-down">
+    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+      <h3 class="font-bold text-gray-900">Add New Product</h3>
+      <button (click)="toggleForm()" class="text-gray-400 hover:text-gray-600"><svg class="w-5 h-5" fill="none"
+          stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg></button>
+    </div>
+    <div class="p-6">
+      <form (ngSubmit)="createProduct()" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-700">Product Name</label>
+          <input type="text" [(ngModel)]="newProduct.name" name="name" required
+            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+        </div>
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-700">Category</label>
+          <select [(ngModel)]="newProduct.category" name="category" required
+            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+            <option value="">Select Category</option>
+            <option value="Smartphones & Accessories">Smartphones & Accessories</option>
+            <option value="Laptops & Computers">Laptops & Computers</option>
+            <option value="Tablets & eReaders">Tablets & eReaders</option>
+            <option value="Televisions & Home Theater">Televisions & Home Theater</option>
+            <option value="Smart Home Devices">Smart Home Devices</option>
+            <option value="Audio Devices">Audio Devices</option>
+            <option value="Cameras & Camcorders">Cameras & Camcorders</option>
+            <option value="Gaming Electronics">Gaming Electronics</option>
+            <option value="Automotive Electronics">Automotive Electronics</option>
+            <option value="Wearable & Health Tech">Wearable & Health Tech</option>
+          </select>
+        </div>
+        <div class="md:col-span-2 space-y-2">
+          <label class="text-sm font-semibold text-gray-700">Description</label>
+          <textarea [(ngModel)]="newProduct.description" name="description" required rows="3"
+            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"></textarea>
+        </div>
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-700">Price ($)</label>
+          <input type="number" step="0.01" [(ngModel)]="newProduct.price" name="price" required
+            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+        </div>
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-700">Stock</label>
+          <input type="number" [(ngModel)]="newProduct.stock" name="stock" required
+            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
+        </div>
+        <div class="md:col-span-2 space-y-2">
+          <label class="text-sm font-semibold text-gray-700">Image</label>
+          <input type="file" (change)="onFileSelected($event)"
+            class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+        </div>
+
+        <div class="md:col-span-2 flex justify-end gap-3 pt-4">
+          <button type="button" (click)="toggleForm()"
+            class="px-6 py-2 border border-gray-200 text-gray-600 font-medium rounded-lg hover:bg-gray-50">Cancel</button>
+          <button type="submit" [disabled]="isSubmitting"
+            class="px-6 py-2 bg-gray-900 text-white font-bold rounded-lg hover:bg-black shadow-lg disabled:opacity-50 flex items-center gap-2">
+            <span *ngIf="isSubmitting"
+              class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+            <span>{{ isSubmitting ? 'Saving...' : 'Save Product' }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Products Table -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-gray-50/50 border-b border-gray-200">
+            <th class="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500">Product</th>
+            <th class="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500">Category</th>
+            <th class="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500">Price</th>
+            <th class="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500">Stock</th>
+            <th class="py-4 px-6 text-xs font-semibold uppercase tracking-wider text-gray-500 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr *ngFor="let product of filteredProducts" class="hover:bg-gray-50/50 transition-colors group">
+
+            <!-- Product Info -->
+            <td class="py-4 px-6">
+              <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
+                  <img [src]="product.imageURL" alt="" class="w-full h-full object-cover">
+                </div>
+                <div>
+                  <p class="font-bold text-gray-900 line-clamp-1">{{ product.name }}</p>
+                  <p class="text-xs text-gray-500 line-clamp-1 max-w-[200px]">{{ product.description }}</p>
+                </div>
+              </div>
+            </td>
+
+            <!-- Category -->
+            <td class="py-4 px-6">
+              <span
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                {{ product.category }}
+              </span>
+            </td>
+
+            <!-- Price -->
+            <td class="py-4 px-6">
+              <span class="font-mono text-sm font-semibold text-gray-900">${{ product.price }}</span>
+            </td>
+
+            <!-- Stock -->
+            <td class="py-4 px-6">
+              <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full"
+                  [ngClass]="{'bg-green-500': product.stock > 10, 'bg-yellow-500': product.stock <= 10 && product.stock > 0, 'bg-red-500': product.stock === 0}">
+                </div>
+                <span class="text-sm text-gray-700">{{ product.stock }} units</span>
+              </div>
+            </td>
+
+            <!-- Actions -->
+            <td class="py-4 px-6 text-right">
+              <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button (click)="selectProduct(product)"
+                  class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  title="Edit">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                    </path>
+                  </svg>
+                </button>
+                <button (click)="deleteProduct(product)"
+                  class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  title="Delete">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                    </path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+
+          </tr>
+          <tr *ngIf="filteredProducts.length === 0">
+            <td colspan="5" class="py-12 text-center text-gray-500">
+              <p>No products found matching your search.</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div *ngIf="selectedProduct" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" (click)="cancelEdit()"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden animate-scale-in">
+    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+      <h3 class="text-lg font-bold text-gray-900">Edit Product</h3>
+      <button (click)="cancelEdit()" class="text-gray-400 hover:text-gray-600"><svg class="w-6 h-6" fill="none"
+          stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg></button>
+    </div>
+    <div class="p-6">
+      <form (ngSubmit)="updateProduct()" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Same fields as create form but populated -->
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-700">Product Name</label>
+          <input type="text" [(ngModel)]="selectedProduct.name" name="editName" required
+            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 transition-all">
+        </div>
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-700">Category</label>
+          <select [(ngModel)]="selectedProduct.category" name="editCategory" required
+            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 transition-all">
+            <option value="Smartphones & Accessories">Smartphones & Accessories</option>
+            <option value="Laptops & Computers">Laptops & Computers</option>
+            <option value="Tablets & eReaders">Tablets & eReaders</option>
+            <option value="Televisions & Home Theater">Televisions & Home Theater</option>
+            <option value="Smart Home Devices">Smart Home Devices</option>
+            <option value="Audio Devices">Audio Devices</option>
+            <option value="Cameras & Camcorders">Cameras & Camcorders</option>
+            <option value="Gaming Electronics">Gaming Electronics</option>
+            <option value="Automotive Electronics">Automotive Electronics</option>
+            <option value="Wearable & Health Tech">Wearable & Health Tech</option>
+          </select>
+        </div>
+        <div class="md:col-span-2 space-y-2">
+          <label class="text-sm font-semibold text-gray-700">Description</label>
+          <textarea [(ngModel)]="selectedProduct.description" name="editDescription" required rows="3"
+            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 transition-all"></textarea>
+        </div>
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-700">Price ($)</label>
+          <input type="number" step="0.01" [(ngModel)]="selectedProduct.price" name="editPrice" required
+            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 transition-all">
+        </div>
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-gray-700">Stock</label>
+          <input type="number" [(ngModel)]="selectedProduct.stock" name="editStock" required
+            class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 transition-all">
+        </div>
+        <div class="md:col-span-2 space-y-2">
+          <label class="text-sm font-semibold text-gray-700">Change Image (Optional)</label>
+          <input type="file" (change)="onFileSelectedUpdate($event)"
+            class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+        </div>
+
+        <div class="md:col-span-2 flex justify-end gap-3 pt-4 border-t border-gray-100 mt-4">
+          <button type="button" (click)="cancelEdit()"
+            class="px-6 py-2 border border-gray-200 text-gray-600 font-medium rounded-lg hover:bg-gray-50">Cancel</button>
+          <button type="submit"
+            class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-md">Update
+            Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div *ngIf="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" (click)="cancelDelete()"></div>
+  <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 text-center animate-scale-in">
+    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 text-red-600">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+        </path>
+      </svg>
+    </div>
+    <h3 class="text-xl font-bold text-gray-900 mb-2">Delete Product?</h3>
+    <p class="text-gray-500 mb-6 text-sm">Are you sure you want to remove <span class="font-bold text-gray-800">{{
+        productToDelete?.name }}</span>? This action cannot be undone.</p>
+    <div class="flex gap-3 justify-center">
+      <button (click)="cancelDelete()"
+        class="px-5 py-2.5 border border-gray-200 text-gray-600 font-medium rounded-lg hover:bg-gray-50">Cancel</button>
+      <button (click)="confirmDelete()"
+        class="px-5 py-2.5 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 shadow-md">Yes, Delete</button>
+    </div>
+  </div>
+</div>
