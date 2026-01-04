@@ -1,0 +1,30 @@
+---
+- name: Install K3s on Remote Server
+  hosts: server
+  become: yes
+  tasks:
+    - name: Download K3s installation script
+      get_url:
+        url: https://get.k3s.io
+        dest: /tmp/k3s_install.sh
+        mode: '0700'
+
+    - name: Install K3s
+      shell: /tmp/k3s_install.sh
+      environment:
+        INSTALL_K3S_EXEC: "--write-kubeconfig-mode 644"
+
+    - name: Fetch kubeconfig to local machine
+      fetch:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: ~/.kube/config_k3s_remote
+        flat: yes
+
+- name: Configure Local Kubectl
+  hosts: localhost
+  tasks:
+    - name: Update kubeconfig server address
+      replace:
+        path: ~/.kube/config_k3s_remote
+        regexp: '127.0.0.1'
+        replace: '192.168.137.10'
