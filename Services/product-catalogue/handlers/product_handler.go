@@ -55,7 +55,11 @@ func CreateProduct(c *fiber.Ctx) error {
 			})
 		}
 
-		product.ImageURL = "http://localhost:4000/uploads/" + filename
+		baseURL := os.Getenv("BASE_URL")
+		if baseURL == "" {
+			baseURL = "http://localhost:4000"
+		}
+		product.ImageURL = baseURL + "/uploads/" + filename
 	}
 
 	// Save product to database
@@ -132,7 +136,11 @@ func UpdateProduct(c *fiber.Ctx) error {
 		}
 
 		// Update the product image URL
-		product.ImageURL = "http://localhost:4000/uploads/" + filename
+		baseURL := os.Getenv("BASE_URL")
+		if baseURL == "" {
+			baseURL = "http://localhost:4000"
+		}
+		product.ImageURL = baseURL + "/uploads/" + filename
 	}
 
 	// Save changes

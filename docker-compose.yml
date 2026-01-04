@@ -1,0 +1,118 @@
+version: '3.8'
+
+services:
+  # Database Service (MongoDB)
+  database:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - shop-network
+
+  # Postgres Service for Product Catalogue
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=product_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - shop-network
+
+  # User Authentication Service
+  user-authentication:
+    build: ./Services/user-authentication
+    container_name: user-auth-service
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://mongodb:27017/authentication-service
+      - JWT_SECRET=supersecretkey
+    depends_on:
+      - database
+    networks:
+      - shop-network
+
+  # Gestion Commandes Service (Order Management)
+  gestion-commandes:
+    build: ./Services/gestion-commandes
+    container_name: order-service
+    ports:
+      - "5100:5100"
+    environment:
+      - PORT=5100
+      - MON_URI=mongodb://mongodb:27017/gestion-commandes
+      - AUTH_SERVICE_DB_URI=mongodb://mongodb:27017/authentication-service
+      - JWT_SECRET=supersecretkey
+    depends_on:
+      - database
+      - user-authentication
+    networks:
+      - shop-network
+
+  # Product Catalogue Service
+  product-catalogue:
+    build: ./Services/product-catalogue
+    container_name: product-service
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - JWT_SECRET=supersecretkey
+      - DATABASE_URL=postgres://user:password@postgres:5432/product_db
+      - BASE_URL=http://localhost:4000
+    depends_on:
+      - postgres
+    volumes:
+      - ./Services/product-catalogue/uploads:/app/uploads
+    networks:
+      - shop-network
+
+  # Frontend (Next.js)
+  frontend:
+    build: ./Services/frontend
+    container_name: frontend-service
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_AUTH_SERVICE_URL=http://localhost:5000/api/auth
+      - NEXT_PUBLIC_PRODUCT_SERVICE_URL=http://localhost:4000/products
+      - NEXT_PUBLIC_ORDER_SERVICE_URL=http://localhost:5100/api
+    depends_on:
+      - user-authentication
+      - product-catalogue
+      - gestion-commandes
+    networks:
+      - shop-network
+
+  # Admin Dashboard (Angular)
+  admin-dashboard:
+    build: ./Services/admin-dashboard
+    container_name: admin-dashboard
+    ports:
+      - "80:80"
+    # Env vars for Angular are built-in at build time or handled via config.json for runtime.
+    # We rely on the environment.ts we built which points to localhost.
+    depends_on:
+      - user-authentication
+      - product-catalogue
+      - gestion-commandes
+    networks:
+      - shop-network
+
+networks:
+  shop-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+  postgres-data:

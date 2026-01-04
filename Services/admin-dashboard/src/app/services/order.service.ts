@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
-  private apiUrl = 'http://localhost:5100/api/orders'; // Update with your API URL
+  private apiUrl = `${environment.orderServiceUrl}/orders`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // Fetch all orders
   getOrders(): Observable<any> {

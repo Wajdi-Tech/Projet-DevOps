@@ -14,7 +14,7 @@ const NewArrivals = () => {
         const fetchProducts = async () => {
             try {
                 // Fetching from Product Catalogue Service
-                const response = await axios.get("http://127.0.0.1:4000/products");
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL || 'http://127.0.0.1:4000'}/products`);
                 // Simulate "New Arrivals" by taking the last 8 items (assuming newer items are appended)
                 // If your backend sorts differently, this logic might need adjustment.
                 const allProducts = response.data;
