@@ -96,7 +96,7 @@ const Contact = () => {
                   className="w-full h-full object-cover opacity-80"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = "https://via.placeholder.com/600x300?text=Map+View";
+                    e.target.src = "https://placehold.co/600x300?text=Map+View";
                   }}
                 />
                 <div className="absolute inset-0 flex items-center justify-center">

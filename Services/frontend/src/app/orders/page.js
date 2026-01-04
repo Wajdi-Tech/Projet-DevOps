@@ -8,7 +8,10 @@ import { FiPackage, FiCalendar, FiClock, FiChevronRight, FiBox, FiTruck, FiCheck
 import Link from "next/link";
 import { Toaster } from "react-hot-toast";
 
+import { useConfig } from "../context/ConfigContext";
+
 const OrdersPage = () => {
+    const { config } = useConfig();
     const { token, isSignedIn } = useAuth();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -27,7 +30,7 @@ const OrdersPage = () => {
             while (attempt < maxRetries) {
                 try {
                     // API Call to correct port 5100
-                    const response = await axios.get(`${process.env.NEXT_PUBLIC_ORDER_SERVICE_URL || 'http://127.0.0.1:5100'}/api/my-orders`, {
+                    const response = await axios.get(`${config.orderServiceUrl}/api/my-orders`, {
                         headers: { Authorization: `Bearer ${token}` },
                     });
 

@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-authentication
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-authentication
+  template:
+    metadata:
+      labels:
+        app: user-authentication
+    spec:
+      containers:
+      - name: user-authentication
+        image: achrefs161/user-auth-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+        env:
+        - name: PORT
+          value: "5000"
+        - name: MONGO_URI
+          value: "mongodb://mongodb:27017/authentication-service"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: shop-secrets
+              key: JWT_SECRET

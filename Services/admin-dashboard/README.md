@@ -57,3 +57,36 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## Runtime Configuration
+
+This application supports runtime configuration via `config.json`. This allows changing API URLs without rebuilding the application, which is useful for containerized environments (Docker, Kubernetes).
+
+### Default Configuration (Local Development)
+The default `public/config.json` is used for local development:
+```json
+{
+    "productServiceUrl": "http://localhost:4000/products",
+    "authServiceUrl": "http://localhost:5000/api/auth",
+    "orderServiceUrl": "http://localhost:5100/api"
+}
+```
+
+### Kubernetes / Docker Deployment
+To override these values in a container, map a new `config.json` volume to `/usr/share/nginx/html/config.json`.
+
+Example Kubernetes ConfigMap:
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: admin-dashboard-config
+data:
+  config.json: |
+    {
+      "productServiceUrl": "/api/products",
+      "authServiceUrl": "/api/auth",
+      "orderServiceUrl": "/api/order"
+    }
+```
+Then mount it in your Deployment.

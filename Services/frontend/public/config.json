@@ -1,0 +1,5 @@
+{
+    "authServiceUrl": "http://localhost:5000/api/auth",
+    "productServiceUrl": "http://localhost:4000/products",
+    "orderServiceUrl": "http://localhost:5100/api"
+}

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  config.json: |
+    {
+      "productServiceUrl": "http://shop.local",
+      "authServiceUrl": "http://shop.local/api/auth",
+      "orderServiceUrl": "http://shop.local"
+    }

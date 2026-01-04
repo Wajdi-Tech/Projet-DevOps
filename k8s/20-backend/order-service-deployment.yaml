@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gestion-commandes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gestion-commandes
+  template:
+    metadata:
+      labels:
+        app: gestion-commandes
+    spec:
+      containers:
+      - name: gestion-commandes
+        image: achrefs161/order-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5100
+        env:
+        - name: PORT
+          value: "5100"
+        - name: MON_URI
+          value: "mongodb://mongodb:27017/gestion-commandes"
+        - name: AUTH_SERVICE_DB_URI
+          value: "mongodb://mongodb:27017/authentication-service"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: shop-secrets
+              key: JWT_SECRET

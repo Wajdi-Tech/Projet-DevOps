@@ -7,7 +7,10 @@ import Footer from "./Footer";
 import { Toaster } from "react-hot-toast";
 import Link from 'next/link';
 
+import { useConfig } from "../app/context/ConfigContext";
+
 const Main = () => {
+  const { config, configLoaded } = useConfig();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,9 +27,11 @@ const Main = () => {
   }, []);
 
   useEffect(() => {
+    if (!configLoaded) return;
+
     const fetchProducts = async () => {
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL || 'http://127.0.0.1:4000'}/products`);
+        const response = await axios.get(`${config.productServiceUrl}/products`);
         setProducts(response.data);
         setFilteredProducts(response.data);
       } catch (err) {
@@ -37,7 +42,7 @@ const Main = () => {
       }
     };
     fetchProducts();
-  }, []);
+  }, [config, configLoaded]);
 
   useEffect(() => {
     if (searchQuery) {

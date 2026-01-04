@@ -5,16 +5,20 @@ import ProductCard from "@/components/products/ProductCard";
 import axios from "axios";
 import { Toaster } from "react-hot-toast";
 
+import { useConfig } from "../context/ConfigContext";
+
 const NewArrivals = () => {
+    const { config, configLoaded } = useConfig();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        if (!configLoaded) return;
         const fetchProducts = async () => {
             try {
                 // Fetching from Product Catalogue Service
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL || 'http://127.0.0.1:4000'}/products`);
+                const response = await axios.get(`${config.productServiceUrl}/products`);
                 // Simulate "New Arrivals" by taking the last 8 items (assuming newer items are appended)
                 // If your backend sorts differently, this logic might need adjustment.
                 const allProducts = response.data;
@@ -29,7 +33,7 @@ const NewArrivals = () => {
         };
 
         fetchProducts();
-    }, []);
+    }, [config, configLoaded]);
 
     return (
         <div className="min-h-screen bg-gray-50">

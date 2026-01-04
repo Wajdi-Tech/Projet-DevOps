@@ -4,9 +4,10 @@ import axios from 'axios';
 import { useAuth } from '../app/context/AuthContext';
 import { toast } from 'react-hot-toast';
 
-const API_URL = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || "http://127.0.0.1:5000/api/auth";
+import { useConfig } from "../app/context/ConfigContext";
 
 const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
+    const { config } = useConfig();
     const [mode, setMode] = useState(initialMode);
     const [isLoading, setIsLoading] = useState(false);
     const { login } = useAuth();
@@ -53,7 +54,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
 
         try {
             if (mode === 'login') {
-                const response = await axios.post(`${API_URL}/signin`, {
+                const response = await axios.post(`${config.authServiceUrl}/signin`, {
                     email: formData.email,
                     password: formData.password
                 });
@@ -66,7 +67,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
                     toast.error(response.data.message || "Login failed");
                 }
             } else {
-                const response = await axios.post(`${API_URL}/signup`, {
+                const response = await axios.post(`${config.authServiceUrl}/signup`, {
                     firstName: formData.firstName,
                     lastName: formData.lastName,
                     email: formData.email,
