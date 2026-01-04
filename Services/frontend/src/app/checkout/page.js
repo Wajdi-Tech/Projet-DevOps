@@ -148,7 +148,7 @@ const CheckoutPage = () => {
         try {
             // Correct URL: POST /api/order (singular, based on orderRoutes.js)
             const response = await axios.post(
-                "http://127.0.0.1:5100/api/order",
+                `${process.env.NEXT_PUBLIC_ORDER_SERVICE_URL || 'http://127.0.0.1:5100'}/api/order`,
                 orderData,
                 {
                     headers: { Authorization: `Bearer ${token}` },

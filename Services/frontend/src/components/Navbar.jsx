@@ -12,7 +12,7 @@ import { useCart } from "../app/context/CartContext";
 import { useAuth } from "../app/context/AuthContext";
 import ProfileModal from "./ProfileModal";
 
-const API_URL = "http://localhost:5000/api/auth";
+const API_URL = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || "http://localhost:5000/api/auth";
 
 const Navbar = () => {
   const { clientTotalItems } = useCart();

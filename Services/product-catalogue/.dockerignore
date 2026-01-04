@@ -1,0 +1,7 @@
+product-catalogue
+Dockerfile
+.dockerignore
+.git
+.gitignore
+.env*
+uploads

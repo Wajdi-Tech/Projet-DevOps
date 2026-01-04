@@ -19,7 +19,7 @@ const ProductDetails = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const response = await axios.get(`http://127.0.0.1:4000/products/${id}`);
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL || 'http://127.0.0.1:4000'}/products/${id}`);
                 setProduct(response.data);
             } catch (err) {
                 console.error("Error fetching product:", err);

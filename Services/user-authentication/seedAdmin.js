@@ -10,19 +10,19 @@ const createAdmin = async () => {
         await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/authentication-service');
         console.log('Connected to MongoDB');
 
-        const adminExists = await User.findOne({ email: 'wajdi@tech.com' });
+        const adminExists = await User.findOne({ email: 'admin@tech.com' });
         if (adminExists) {
             console.log('Admin user already exists');
             process.exit(0);
         }
 
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash('0000', salt);
+        const hashedPassword = await bcrypt.hash('admin', salt);
 
         const admin = new User({
-            firstName: 'wajdi',
-            lastName: 'wajdi',
-            email: 'wajdi@tech.com',
+            firstName: 'admin',
+            lastName: 'admin',
+            email: 'admin@tech.com',
             password: hashedPassword,
             role: 'admin',
         });

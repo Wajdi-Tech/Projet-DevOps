@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useAuth } from '../app/context/AuthContext';
 import { toast } from 'react-hot-toast';
 
-const API_URL = "http://127.0.0.1:5000/api/auth";
+const API_URL = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || "http://127.0.0.1:5000/api/auth";
 
 const AuthModal = ({ isOpen, onClose, initialMode = 'login' }) => {
     const [mode, setMode] = useState(initialMode);

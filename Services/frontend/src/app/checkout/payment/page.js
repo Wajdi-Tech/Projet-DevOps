@@ -55,7 +55,7 @@ const PaymentPage = () => {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:5100/api/orders",
+        `${process.env.NEXT_PUBLIC_ORDER_SERVICE_URL || 'http://127.0.0.1:5100'}/api/orders`,
         orderData,
         {
           headers: { Authorization: `Bearer ${token}` },

@@ -27,7 +27,7 @@ const OrdersPage = () => {
             while (attempt < maxRetries) {
                 try {
                     // API Call to correct port 5100
-                    const response = await axios.get("http://127.0.0.1:5100/api/my-orders", {
+                    const response = await axios.get(`${process.env.NEXT_PUBLIC_ORDER_SERVICE_URL || 'http://127.0.0.1:5100'}/api/my-orders`, {
                         headers: { Authorization: `Bearer ${token}` },
                     });
 
