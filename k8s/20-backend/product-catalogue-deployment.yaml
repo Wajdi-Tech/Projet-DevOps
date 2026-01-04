@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-catalogue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-catalogue
+  template:
+    metadata:
+      labels:
+        app: product-catalogue
+    spec:
+      containers:
+      - name: product-catalogue
+        image: achrefs161/product-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 4000
+        env:
+        - name: PORT
+          value: "4000"
+        - name: DATABASE_URL
+          value: "postgres://user:password@postgres:5432/product_db"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: shop-secrets
+              key: JWT_SECRET
+        - name: BASE_URL
+          value: "http://shop.local/products" 
+        volumeMounts:
+        - name: uploads-storage
+          mountPath: /app/uploads
+      volumes:
+      - name: uploads-storage
+        persistentVolumeClaim:
+          claimName: uploads-pvc

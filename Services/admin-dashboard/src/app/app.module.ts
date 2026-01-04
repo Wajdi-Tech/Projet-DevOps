@@ -1,4 +1,5 @@
-import { NgModule } from '@angular/core';
+import { NgModule, APP_INITIALIZER } from '@angular/core';
+import { AppConfigService } from './services/app-config.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'; // Required for Toastr
 import { ToastrModule } from 'ngx-toastr';
@@ -26,13 +27,18 @@ import { CustomersComponent } from './customers/customers.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
-      FormsModule,
+    FormsModule,
     BrowserAnimationsModule, // Required for Toastr
-    ToastrModule.forRoot() 
+    ToastrModule.forRoot()
   ],
   providers: [
-    provideHttpClient(withFetch()) // Add this line
-    
+    provideHttpClient(withFetch()),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (configService: AppConfigService) => () => configService.loadConfig(),
+      deps: [AppConfigService],
+      multi: true
+    }
   ],
   bootstrap: [AppComponent]
 })

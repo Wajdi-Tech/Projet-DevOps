@@ -17,7 +17,10 @@ import {
     FiShield
 } from "react-icons/fi";
 
+import { useConfig } from "../context/ConfigContext";
+
 const CheckoutPage = () => {
+    const { config } = useConfig();
     const { cart, totalPrice, clearCart } = useCart();
     const { token, isSignedIn } = useAuth();
     const { address, saveAddress } = useAddress(); // Use global address state
@@ -148,7 +151,7 @@ const CheckoutPage = () => {
         try {
             // Correct URL: POST /api/order (singular, based on orderRoutes.js)
             const response = await axios.post(
-                `${process.env.NEXT_PUBLIC_ORDER_SERVICE_URL || 'http://127.0.0.1:5100'}/api/order`,
+                `${config.orderServiceUrl}/api/order`,
                 orderData,
                 {
                     headers: { Authorization: `Bearer ${token}` },

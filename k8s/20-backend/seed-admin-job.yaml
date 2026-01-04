@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seed-admin-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: seed-admin
+        image: achrefs161/user-auth-service:latest
+        command: ["node", "seedAdmin.js"]
+        env:
+        - name: MONGO_URI
+          value: "mongodb://mongodb:27017/authentication-service"
+      restartPolicy: Never
+  backoffLimit: 4

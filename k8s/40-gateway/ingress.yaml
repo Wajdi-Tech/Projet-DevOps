@@ -1,0 +1,58 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: shop-ingress
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: shop.local
+    http:
+      paths:
+      # Frontend (Root)
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-service
+            port:
+              number: 3000
+      # Admin Dashboard (mapped to /admin)
+      - path: /admin
+        pathType: Prefix
+        backend:
+          service:
+            name: admin-dashboard
+            port:
+              number: 80
+      # Auth API
+      - path: /api/auth
+        pathType: Prefix
+        backend:
+          service:
+            name: user-auth-service
+            port:
+              number: 5000
+      # Products API
+      - path: /products
+        pathType: Prefix
+        backend:
+          service:
+            name: product-service
+            port:
+              number: 4000
+      # Order API
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: order-service
+            port:
+              number: 5100
+      # Product Images
+      - path: /products/uploads
+        pathType: Prefix
+        backend:
+          service:
+            name: product-service
+            port:
+              number: 4000

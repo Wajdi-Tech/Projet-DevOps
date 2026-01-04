@@ -35,7 +35,8 @@ func main() {
 	}))
 
 	// Serve static files from the "uploads" directory
-	app.Static("/uploads", "./uploads")
+	// Must match the Ingress path /products/uploads
+	app.Static("/products/uploads", "./uploads")
 
 	// Register product routes
 	routes.RegisterProductRoutes(app)

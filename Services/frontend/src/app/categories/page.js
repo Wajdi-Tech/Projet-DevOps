@@ -3,17 +3,20 @@ import Navbar from "@/components/Navbar";
 import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import Link from "next/link";
+import { useConfig } from "../context/ConfigContext";
 
 const CategoriesPage = () => {
+  const { config, configLoaded } = useConfig();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!configLoaded) return;
     const fetchCategories = async () => {
       try {
         // Fetch all products
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL || 'http://127.0.0.1:4000'}/products`);
+        const response = await axios.get(`${config.productServiceUrl}/products`);
         const products = response.data;
 
         // Group products by category
@@ -45,7 +48,7 @@ const CategoriesPage = () => {
     };
 
     fetchCategories();
-  }, []);
+  }, [config, configLoaded]);
 
   return (
     <div className="min-h-screen bg-gray-50">

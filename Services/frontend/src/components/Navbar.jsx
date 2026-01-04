@@ -10,11 +10,11 @@ import Cart from "./Cart";
 import axios from "axios";
 import { useCart } from "../app/context/CartContext";
 import { useAuth } from "../app/context/AuthContext";
+import { useConfig } from "../app/context/ConfigContext";
 import ProfileModal from "./ProfileModal";
 
-const API_URL = process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || "http://localhost:5000/api/auth";
-
 const Navbar = () => {
+  const { config } = useConfig();
   const { clientTotalItems } = useCart();
   const { isSignedIn, token, login } = useAuth();
   const pathname = usePathname();

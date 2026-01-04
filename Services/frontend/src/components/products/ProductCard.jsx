@@ -15,7 +15,7 @@ const ProductCard = ({ product }) => {
 
   return (
     <Link
-      href={`/products/${product.ID}`}
+      href={`/p/${product.ID}`}
       className="group block bg-white rounded-2xl overflow-hidden border border-gray-100 transition-all duration-300 hover:shadow-xl hover:shadow-blue-900/5 hover:-translate-y-1"
     >
       {/* Image Container */}
@@ -32,7 +32,7 @@ const ProductCard = ({ product }) => {
             onClick={(e) => {
               e.preventDefault();
               // Quick view logic could go here, for now just nav
-              window.location.href = `/products/${product.ID}`;
+              window.location.href = `/p/${product.ID}`;
             }}
             className="p-3 bg-white text-gray-800 rounded-full shadow-lg hover:bg-gray-50 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300"
             title="View Details"
