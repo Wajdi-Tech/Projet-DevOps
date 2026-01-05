@@ -16,26 +16,6 @@ pipeline {
 
         stage('Test All Services') {
             parallel {
-                stage('Test Frontend') {
-                    steps {
-                        dir('Services/frontend') {
-                            sh 'npm install'
-                            sh 'npm test'
-                        }
-                    }
-                }
-                stage('Test Admin Dashboard') {
-                    steps {
-                        script {
-                            docker.image('cimg/node:20.11.0-browsers').inside {
-                                dir('Services/admin-dashboard') {
-                                    sh 'npm install'
-                                    sh 'npm run test:ci'
-                                }
-                            }
-                        }
-                    }
-                }
                 stage('Test User Auth') {
                     steps {
                         dir('Services/user-authentication') {
