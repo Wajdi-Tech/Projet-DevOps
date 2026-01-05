@@ -1,6 +1,30 @@
-import request from 'supertest';
 import { jest } from '@jest/globals';
-import app from '../app.js';
+
+// 1. Mock Mongoose BEFORE importing app
+// We need to mock 'mongoose' because routes/orderRoutes.js calls mongoose.createConnection() at top-level.
+jest.unstable_mockModule('mongoose', () => ({
+    default: {
+        connect: jest.fn(),
+        createConnection: jest.fn().mockReturnValue({
+            model: jest.fn().mockReturnValue({
+                // Mock model methods if needed, though health check shouldn't touch them
+                find: jest.fn(),
+                findById: jest.fn(),
+            }),
+        }),
+        Schema: class {
+            static Types = {
+                ObjectId: 'ObjectId',
+            };
+        },
+        model: jest.fn(),
+    },
+}));
+
+// 2. Import helpers and the app dynamically
+const { describe, it, expect, beforeAll } = await import('@jest/globals');
+const request = (await import('supertest')).default;
+const app = (await import('../app.js')).default; // Note: app.js was 'export default app'
 
 describe('Order Service - 5 Checks', () => {
 
@@ -29,9 +53,6 @@ describe('Order Service - 5 Checks', () => {
     });
 
     // 5. Method Not Allowed (Simulated)
-    // Since we don't have a rigid MethodNotAllowed handler usually in Express unless configured,
-    // we can check that a POST to /health doesn't crash or behave weirdly (usually 404 or 200 depending on implementation).
-    // Actually, Express defaults to 404 for undefined routes/methods.
     it('POST /health should return 404 (Method Not Defined)', async () => {
         const res = await request(app).post('/health');
         expect(res.statusCode).toBe(404);
