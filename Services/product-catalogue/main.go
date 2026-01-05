@@ -8,6 +8,7 @@ import (
 	"product-catalogue/models"
 	"product-catalogue/routes"
 
+	"github.com/ansrivas/fiberprometheus/v2" // Prometheus Middleware
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
@@ -26,6 +27,12 @@ func main() {
 
 	// Initialize Fiber app
 	app := fiber.New()
+
+	// --- Prometheus Metrics Setup ---
+	prometheus := fiberprometheus.New("product-service")
+	prometheus.RegisterAt(app, "/metrics")
+	app.Use(prometheus.Middleware)
+	// --------------------------------
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:  "*", // Your Angular app's origin
