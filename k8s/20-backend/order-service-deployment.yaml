@@ -11,6 +11,10 @@ spec:
     metadata:
       labels:
         app: gestion-commandes
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '5100'
+        prometheus.io/path: '/metrics'
     spec:
       initContainers:
       - name: wait-for-mongodb
