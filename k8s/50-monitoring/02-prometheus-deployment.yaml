@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus-deployment
-  namespace: devops-project
+
   labels:
     app: prometheus-server
 spec:
@@ -40,7 +40,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: prometheus-service
-  namespace: devops-project
+
   annotations:
     prometheus.io/scrape: 'true'
     prometheus.io/port:   '9090'
