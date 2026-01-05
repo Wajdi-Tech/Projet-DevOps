@@ -11,6 +11,10 @@ spec:
     metadata:
       labels:
         app: product-catalogue
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '4000'
+        prometheus.io/path: '/metrics'
     spec:
       initContainers:
       - name: wait-for-postgres

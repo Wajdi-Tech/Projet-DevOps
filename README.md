@@ -188,3 +188,12 @@ We moved to **Lightweight Integration Tests** to ensure fast CI feedback:
 - **Scope**: Focused on Backend API reliability (Health checks, 404s, Content-Type validation).
 - **Performance**: Tests run in seconds rather than minutes.
 
+### Accessing Monitoring Tools
+Once deployed via the pipeline, you can access the tools locally:
+
+- **Grafana**: [http://localhost:32000](http://localhost:32000)
+  - **User**: `admin`
+  - **Password**: `admin`
+- **Prometheus**: [http://localhost:30003](http://localhost:30003)
+  - **Verify Targets**: Go to [Status > Targets](http://localhost:30003/targets) to see your pods connected.
+
