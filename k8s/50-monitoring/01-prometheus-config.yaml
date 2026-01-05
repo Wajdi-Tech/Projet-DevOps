@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: prometheus-server-conf
-  namespace: devops-project
+
   labels:
     name: prometheus-server-conf
 data:
