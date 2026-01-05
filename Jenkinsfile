@@ -104,19 +104,31 @@ pipeline {
             }
         }
 
-        stage('Deploy to K3s') {
-            steps {
-                script {
-                    sh 'kubectl apply -f k8s/00-configuration/'
-                    sh 'kubectl apply -f k8s/10-infrastructure/'
-                    sh 'kubectl apply -f k8s/20-backend/'
-                    sh 'kubectl apply -f k8s/30-frontend/'
-                    sh 'kubectl apply -f k8s/40-gateway/'
-                    
-                    // Force restart to pull new images
-                    sh 'kubectl rollout restart deployment frontend admin-dashboard user-authentication product-catalogue gestion-commandes'
-                }
+ stage('Deploy to K3s') {
+    steps {
+        script {
+            // 1️⃣ Ensure kubeconfig is readable by Jenkins
+            sh '''
+                mkdir -p $HOME/.kube
+                sudo cp /etc/rancher/k3s/k3s.yaml $HOME/.kube/config
+                sudo chown $(id -u):$(id -g) $HOME/.kube/config
+            '''
+
+            // 2️⃣ Set KUBECONFIG environment so kubectl uses Jenkins-accessible config
+            withEnv(["KUBECONFIG=$HOME/.kube/config"]) {
+                // Apply manifests
+                sh 'kubectl apply -f k8s/00-configuration/'
+                sh 'kubectl apply -f k8s/10-infrastructure/'
+                sh 'kubectl apply -f k8s/20-backend/'
+                sh 'kubectl apply -f k8s/30-frontend/'
+                sh 'kubectl apply -f k8s/40-gateway/'
+
+                // Force restart to pull new images
+                sh 'kubectl rollout restart deployment frontend admin-dashboard user-authentication product-catalogue gestion-commandes'
             }
         }
+    }
+}
+
     }
 }
