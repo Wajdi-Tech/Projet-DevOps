@@ -37,7 +37,11 @@ pipeline {
                         script {
                             docker.image('golang:1.23').inside {
                                 dir('Services/product-catalogue') {
-                                    sh 'go test -v ./...'
+                                    // Set Go cache to writable folder
+                                    withEnv(['GOCACHE=/tmp/.cache/go-build']) {
+                                        sh 'mkdir -p $GOCACHE'
+                                        sh 'go test -v ./...'
+                                    }
                                 }
                             }
                         }
@@ -45,7 +49,6 @@ pipeline {
                 }
             }
         }
-
         stage('Build & Push Docker Images') {
             parallel {
                 stage('Frontend') {
