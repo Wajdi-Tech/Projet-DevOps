@@ -34,8 +34,12 @@ pipeline {
                 }
                 stage('Test Product Service') {
                     steps {
-                        dir('Services/product-catalogue') {
-                            sh 'go test ./...'
+                        script {
+                            docker.image('golang:1.22').inside {
+                                dir('Services/product-catalogue') {
+                                    sh 'go test -v ./...'
+                                }
+                            }
                         }
                     }
                 }
