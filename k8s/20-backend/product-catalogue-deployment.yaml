@@ -12,6 +12,10 @@ spec:
       labels:
         app: product-catalogue
     spec:
+      initContainers:
+      - name: wait-for-postgres
+        image: busybox:1.28
+        command: ['sh', '-c', "until nc -z -v -w30 postgres 5432; do echo waiting for postgres; sleep 5; done"]
       containers:
       - name: product-catalogue
         image: achrefs161/product-service:latest
