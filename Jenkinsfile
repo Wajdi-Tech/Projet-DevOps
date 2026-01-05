@@ -114,6 +114,7 @@ stage('Deploy to K3s') {
                 sh 'kubectl apply -f k8s/30-frontend/'
                 sh 'kubectl apply -f k8s/40-gateway/'
                 sh 'kubectl apply -f k8s/50-monitoring/'
+                sh 'kubectl apply -f k8s/60-logging/'
 
                 sh 'kubectl rollout restart deployment frontend admin-dashboard user-authentication product-catalogue gestion-commandes'
             }
