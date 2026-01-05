@@ -27,7 +27,7 @@ pipeline {
                 stage('Test Admin Dashboard') {
                     steps {
                         script {
-                            docker.image('circleci/node:20-browsers').inside {
+                            docker.image('cimg/node:20.11.0-browsers').inside {
                                 dir('Services/admin-dashboard') {
                                     sh 'npm install'
                                     sh 'npm run test:ci'

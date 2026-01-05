@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { jest } from '@jest/globals';
-import app from '../../app.js';
+import app from '../app.js';
 
 // We need to mock the models, but since they are likely imported in controllers, 
 // we might need to mock the controller or the mongoose model itself.
