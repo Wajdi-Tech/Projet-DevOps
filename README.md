@@ -77,6 +77,12 @@ Ensure you have an Ingress Controller installed (Traefik comes with K3s default)
 kubectl apply -f k8s/40-gateway/
 ```
 
+**Observability Stack:**
+```bash
+kubectl apply -f k8s/50-monitoring/ # Prometheus + Grafana
+kubectl apply -f k8s/60-logging/    # EFK Stack
+```
+
 ### 3. DNS / Hosts Setup
 Add the following line to your local hosts file (`C:\Windows\System32\drivers\etc\hosts` or `/etc/hosts`):
 
@@ -95,6 +101,8 @@ kubectl apply -f k8s/20-backend/seed-admin-job.yaml
 - **Storefront**: [http://shop.local](http://shop.local)
 - **Admin Dashboard**: [http://shop.local/admin](http://shop.local/admin)
 - **Login**: `admin@tech.com` / `admin`
+- **Grafana (Monitoring)**: [http://localhost:32000](http://localhost:32000) (admin/admin)
+- **Kibana (Logging)**: [http://localhost:31000](http://localhost:31000)
 
 ## 🛠️ Configuration Details
 
@@ -111,6 +119,10 @@ If you encounter 404 errors or routing issues:
 1.  Verify Ingress is running: `kubectl get ingress`
 2.  Restart frontend pods to reload config: `kubectl rollout restart deployment frontend admin-dashboard`
 3.  Ensure `shop.local` points to your cluster IP (usually `127.0.0.1` for local setup).
+
+### Logging Tips (ELK)
+- To filter logs in Kibana, create an index pattern `k8s-logs-*`.
+- Filter noise using: `kubernetes.namespace_name : "default"`.
 
 ## 📜 License
 This project is for DevOps demonstration purposes.
