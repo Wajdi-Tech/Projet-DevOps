@@ -104,7 +104,16 @@ pipeline {
             }
         }
 
-stage('Deploy to K3s') {
+        stage('Cleanup Old Images') {
+            steps {
+                script {
+                   // Removes "dangling" images (previous builds that lost the 'latest' tag)
+                   sh 'docker image prune -f' 
+                }
+            }
+        }
+
+        stage('Deploy to K3s') {
     steps {
         script {
             withEnv(["KUBECONFIG=/etc/rancher/k3s/k3s.yaml"]) {
