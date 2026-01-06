@@ -5,10 +5,6 @@ metadata:
 spec:
   template:
     spec:
-      initContainers:
-      - name: wait-for-backend
-        image: busybox:1.28
-        command: ['sh', '-c', "until nc -z -v -w30 user-auth-service 5000 && nc -z -v -w30 product-service 4000 && nc -z -v -w30 order-service 5100; do echo waiting for backend; sleep 5; done"]
       containers:
       - name: seed-admin
         image: achrefs161/user-auth-service:latest
