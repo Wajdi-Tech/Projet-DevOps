@@ -15,6 +15,10 @@ spec:
       labels:
         app: grafana
     spec:
+      initContainers:
+      - name: wait-for-prometheus
+        image: busybox:1.28
+        command: ['sh', '-c', "until nc -z -v -w30 prometheus-service 9090; do echo waiting for prometheus; sleep 5; done"]
       containers:
       - name: grafana
         image: grafana/grafana:10.0.3

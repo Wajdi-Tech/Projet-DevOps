@@ -15,6 +15,10 @@ spec:
       labels:
         app: prometheus-server
     spec:
+      initContainers:
+      - name: wait-for-frontend
+        image: busybox:1.28
+        command: ['sh', '-c', "until nc -z -v -w30 frontend-service 3000; do echo waiting for frontend; sleep 5; done"]
       serviceAccountName: prometheus
       containers:
         - name: prometheus

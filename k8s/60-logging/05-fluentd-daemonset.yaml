@@ -14,6 +14,10 @@ spec:
       labels:
         app: fluentd
     spec:
+      initContainers:
+      - name: wait-for-elasticsearch
+        image: busybox:1.28
+        command: ['sh', '-c', "until nc -z -v -w30 elasticsearch 9200; do echo waiting for elasticsearch; sleep 5; done"]
       serviceAccountName: fluentd
       tolerations:
       - key: node-role.kubernetes.io/master
