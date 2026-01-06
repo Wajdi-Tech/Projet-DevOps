@@ -13,6 +13,10 @@ spec:
       labels:
         app: kibana
     spec:
+      initContainers:
+      - name: wait-for-services
+        image: busybox:1.28
+        command: ['sh', '-c', "until nc -z -v -w30 elasticsearch 9200 && nc -z -v -w30 grafana 3000; do echo waiting for services; sleep 5; done"]
       containers:
       - name: kibana
         image: docker.elastic.co/kibana/kibana:7.17.9
