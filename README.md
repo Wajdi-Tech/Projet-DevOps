@@ -129,60 +129,54 @@ This project is for DevOps demonstration purposes.
 
 ---
 
-## 🚀 6. Infrastructure Deployment (New)
-This project uses **Terraform** as an orchestrator to deploy the application stack to a Kubernetes (K3s) cluster.
-
-### 📋 Prerequisites
-- Windows Machine with Terraform installed.
-- Remote VM (Ubuntu Server) reachable via SSH.
-- SSH Access configured (e.g., `ssh user@vm-ip`).
-
-### 🛠️ Deployment Steps
-
-#### Step 1: Install K3s on Remote VM
-Connect to your VM and install K3s (lightweight Kubernetes):
-
-```bash
-ssh user@remote-vm-ip
-curl -sfL https://get.k3s.io | sh -
-
-# Ensure k3s.yaml is readable
-sudo chmod 644 /etc/rancher/k3s/k3s.yaml
-```
-
-#### Step 2: Config Local Access
-Copy the kubeconfig from the VM to your Windows machine to allow Terraform to connect.
-
-1.  **Copy File**: Copy `/etc/rancher/k3s/k3s.yaml` from VM to `C:\Users\YourUser\.kube\config`.
-2.  **Update IP**: Edit the config file and change `server: https://127.0.0.1:6443` to `server: https://<VM-IP>:6443`.
-
-#### Step 3: Deploy Applications (Terraform)
-Navigate to the infrastructure folder and run the automation:
-
-```powershell
-cd Infrastructure/terraform
-terraform init
-terraform apply -auto-approve
-```
-
-**What this does:**
-- Creates the `devops-project` namespace.
-- Deploys Secrets & ConfigMaps.
-- Deploys Databases (Postgres, MongoDB) with PVCs.
-- Deploys Backend Microservices (User Auth, Product, Order).
-- Deploys Frontend Applications (Next.js, Angular Admin).
-
-#### Step 4: Verification
-Check the status of your deployment:
-
-```powershell
-kubectl get pods -n devops-project
-```
-
-
 ---
 
-## 🧪 7. CI/CD & Testing Strategy (New)
+## 🚀 6. Infrastructure Provisioning (Ansible)
+This project uses **Ansible** to provision a fresh Ubuntu server with all necessary tools (Docker, Jenkins, K3s) to become a CI/CD-ready node.
+
+### 📋 Prerequisites
+- **Control Machine**: Windows/Linux with Ansible installed.
+- **Target Machine**: Ubuntu Server (fresh install recommended).
+    - SSH Access configured (`ssh user@vm-ip`).
+    - At least **4GB RAM** recommended for the full ELK stack.
+
+### 🛠️ Provisioning Steps
+
+#### Step 1: Configure Inventory
+Edit `Infrastructure/ansible/hosts.ini` with your target server IP:
+```ini
+[server]
+<YOUR_VM_IP> ansible_user=<USER> ansible_ssh_pass=<PASSWORD>
+```
+
+#### Step 2: Run Provisioning Playbook
+Run the playbook, providing your **Docker Hub credentials** (for Jenkins to push images) and **Repo URL**:
+
+```bash
+cd Infrastructure/ansible
+
+ansible-playbook -i hosts.ini provision_server.yml \
+  -e "dockerhub_user=<YOUR_DOCKERHUB_USERNAME>" \
+  -e "dockerhub_pass=<YOUR_DOCKERHUB_PASSWORD>" \
+  -e "repo_url=https://github.com/Wajdi-Tech/Projet-DevOps.git"
+```
+
+**What this does (Zero-Touch Setup):**
+1.  **System**: Updates OS and installs dependencies (Git, Curl, etc.).
+2.  **Docker**: Installs Docker Engine (required for building images).
+3.  **K3s**: Installs Kubernetes cluster.
+4.  **Jenkins**:
+    *   Installs Jenkins & Java 17.
+    *   **Auto-Config**: Creates admin user (`admin`/`admin`), installs plugins (`git`, `docker-workflow`, `kubernetes-cli`), adds Docker Hub credentials, and creates the Initial Pipeline Job.
+    *   **Permissions**: Grants Jenkins permission to use Docker and `kubectl`.
+
+### Step 3: Access Jenkins
+- **URL**: `http://<VM_IP>:8080`
+- **Login**: `admin` / `admin`
+- **Job**: Click on **DevOps-Project-Pipeline** and start a build to deploy your application!
+
+## 🧪 7. CI/CD & Testing Strategy
+
 The project includes a robust Jenkins pipeline optimized for backend stability and speed.
 
 ### Jenkins Pipeline Stages

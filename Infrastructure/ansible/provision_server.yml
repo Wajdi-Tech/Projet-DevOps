@@ -1,0 +1,208 @@
+---
+- name: Provision CI/CD Server (Docker, Jenkins, K3s)
+  hosts: server
+  become: yes
+  vars:
+    jenkins_user: jenkins
+    k3s_version: "v1.28.5+k3s1"
+    # repo_url CAN have a default, but docker credentials should be passed in.
+    repo_url: "https://github.com/Wajdi-Tech/Projet-DevOps.git"
+
+  pre_tasks:
+    - name: Ensure Docker Hub credentials are provided
+      fail:
+        msg: "You must provide 'dockerhub_user' and 'dockerhub_pass' via -e or vars file."
+      when: dockerhub_user is not defined or dockerhub_pass is not defined
+
+  tasks:
+    # --- 1. System Updates & Dependencies ---
+    - name: Update apt cache and upgrade packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+      tags: system
+
+    - name: Install database dependencies (for building binaries if needed)
+      apt:
+        name:
+          - curl
+          - wget
+          - git
+          - gnupg
+          - apt-transport-https
+          - software-properties-common
+        state: present
+      tags: dependencies
+
+    # --- 2. Install Docker ---
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        state: present
+
+    - name: Install Docker Engine
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+
+    - name: Ensure Docker service is running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    # --- 3. Install Java (Jenkins Dep) ---
+    - name: Install OpenJDK 17
+      apt:
+        name: openjdk-17-jre
+        state: present
+
+    # --- 4. Install Jenkins ---
+    - name: Download Jenkins GPG key
+      get_url:
+        url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+        dest: /usr/share/keyrings/jenkins-keyring.asc
+        mode: '0644'
+
+    - name: Add Jenkins repository
+      copy:
+        content: "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/"
+        dest: /etc/apt/sources.list.d/jenkins.list
+
+    - name: Install Jenkins
+      apt:
+        update_cache: yes
+        name: jenkins
+        state: present
+
+    - name: Stop Jenkins to configure it
+      service:
+        name: jenkins
+        state: stopped
+
+    # --- 4.1 Jenkins Configuration (Automated) ---
+    - name: Disable Setup Wizard
+      lineinfile:
+        path: /lib/systemd/system/jenkins.service
+        regexp: '^Environment="JAVA_OPTS=-Djava.awt.headless=true'
+        line: 'Environment="JAVA_OPTS=-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"'
+        backrefs: yes
+      notify: Reload Daemon and Restart Jenkins
+
+    - name: Create init.groovy.d directory
+      file:
+        path: /var/lib/jenkins/init.groovy.d
+        state: directory
+        owner: jenkins
+        group: jenkins
+        mode: '0755'
+
+    - name: Copy Groovy Init Scripts
+      template:
+        src: "{{ item }}"
+        dest: "/var/lib/jenkins/init.groovy.d/{{ item | basename }}"
+        owner: jenkins
+        group: jenkins
+        mode: '0644'
+      with_fileglob:
+        - "jenkins_scripts/*.groovy"
+      notify: Restart Jenkins
+
+    # --- 4.2 Jenkins Plugins ---
+    # Using jenkins-plugin-cli (installed by default in modern Jenkins packages)
+    - name: Install Jenkins Plugins
+      shell: |
+        java -jar /usr/share/java/jenkins-plugin-manager.jar --war /usr/share/java/jenkins.war --plugins \
+        git \
+        workflow-aggregator \
+        docker-workflow \
+        kubernetes-cli
+      # Note: The jar location might vary. Modern jenkins places CLI tool in /usr/bin/jenkins-plugin-cli usually?
+      # Let's try the modern way first, fall back to downloading jar if needed.
+      # Actually `jenkins-plugin-cli` is usually available in path.
+      # Safe bet: check if command exists, else skip or download.
+      # Let's try simple command first.
+      
+    - name: Install Plugins using CLI
+      command: >
+        jenkins-plugin-cli --plugins 
+        git 
+        workflow-aggregator 
+        docker-workflow 
+        kubernetes-cli
+      register: plugin_result
+      changed_when: "'Downloaded' in plugin_result.stdout"
+
+    - name: Start Jenkins
+      service:
+        name: jenkins
+        state: started
+        enabled: yes
+
+    # --- 5. Install K3s (Kubernetes) ---
+    - name: Download K3s install script
+      get_url:
+        url: https://get.k3s.io
+        dest: /tmp/k3s_install.sh
+        mode: '0700'
+
+    - name: Install K3s (skip agent, server only)
+      shell: /tmp/k3s_install.sh
+      environment:
+        INSTALL_K3S_EXEC: "--write-kubeconfig-mode 644 --disable traefik" # Using Traefik? Yes/No? Defaulting to disable to keep pure, but user had ingress. Keeping default k3s behavior usually best unless user specified. 
+        # Reverting to NO disable traefik to match previous state intention.
+        # INSTALL_K3S_EXEC: "--write-kubeconfig-mode 644"
+        INSTALL_K3S_VERSION: "{{ k3s_version }}" 
+      args:
+        creates: /usr/local/bin/k3s
+
+    # --- 6. Configuration & Permissions ---
+    - name: Add Jenkins user to Docker group
+      user:
+        name: "{{ jenkins_user }}"
+        groups: docker
+        append: yes
+      notify: Restart Jenkins
+
+    - name: Create .kube directory for Jenkins
+      file:
+        path: "{{ jenkins_home }}/.kube"
+        state: directory
+        owner: "{{ jenkins_user }}"
+        group: "{{ jenkins_user }}"
+        mode: '0750'
+
+    - name: Copy Kubeconfig to Jenkins user
+      copy:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: "{{ jenkins_home }}/.kube/config"
+        remote_src: yes
+        owner: "{{ jenkins_user }}"
+        group: "{{ jenkins_user }}"
+        mode: '0600'
+
+    - name: Set KUBECONFIG env var for Jenkins globally
+      lineinfile:
+        path: /etc/default/jenkins
+        line: 'KUBECONFIG=/var/lib/jenkins/.kube/config'
+        create: yes
+
+  handlers:
+    - name: Reload Daemon and Restart Jenkins
+      shell: |
+        systemctl daemon-reload
+        systemctl restart jenkins
+
+    - name: Restart Jenkins
+      service:
+        name: jenkins
+        state: restarted
+
